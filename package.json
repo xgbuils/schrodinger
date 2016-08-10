@@ -7,9 +7,6 @@
     "lint": "eslint **/*.js"
   },
   "main": "src/index.js",
-  "dependencies": {
-    "lodash": "^4.14.2"
-  },
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^3.2.2",

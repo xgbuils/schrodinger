@@ -55,4 +55,64 @@ describe('schrodinger', function () {
             })
         })
     })
+
+    describe('calling set at first time', function () {
+        describe('before calling get', function () {
+            it('get returns the value set', function () {
+                var array = [23, 'foo', {}]
+                var seed = 236874
+                var value = 39
+
+                var schrodinger = new Schrodinger(array)
+                schrodinger.set(value)
+                var result = schrodinger.get(seed)
+                expect(result).to.be.equal(value)
+            })
+        })
+
+        describe('after calling get', function () {
+            it('throws an exception', function () {
+                var fn = function (seed) {
+                    return seed * seed + 24
+                }
+                var seed = 24
+                var value = 'lorem ipsum'
+                function test () {
+                    var schrodinger = new Schrodinger(fn)
+                    schrodinger.get(seed)
+                    schrodinger.set(value)
+                }
+                expect(test).to.throw('It is not possible to set the value `' +
+                    value + '` after calling get method.')
+            })
+        })
+
+        describe('when constructor uses strict mode with array parameter', function () {
+            it('throws an exception if it is set value that is not in array', function () {
+                var array = [23, 'foo', {}]
+                var value = 39
+                function test () {
+                    var schrodinger = new Schrodinger(array, true)
+                    schrodinger.set(value)
+                }
+                expect(test).to.throw('`' + value + '` is invalid value to set. Valid values: [' +
+                    array.join(', ') + '].')
+            })
+        })
+
+        describe('when constructor uses strict mode with function parameter', function () {
+            it('omits strict mode and value is set correctly', function () {
+                var fn = function (seed) {
+                    return seed > 10 ? 'foo' : 'bar'
+                }
+                var value = 39
+                var seed = 111
+
+                var schrodinger = new Schrodinger(fn, true)
+                schrodinger.set(value)
+                var result = schrodinger.get(seed)
+                expect(result).to.be.equal(value)
+            })
+        })
+    })
 })
