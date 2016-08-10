@@ -1,0 +1,38 @@
+{
+  "name": "schrodinger",
+  "version": "0.1.0",
+  "description": "A Schrödinger box with a cat inside.",
+  "scripts": {
+    "test": "mocha test/test.js",
+    "lint": "eslint **/*.js"
+  },
+  "main": "src/index.js",
+  "dependencies": {
+    "lodash": "^4.14.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.2.2",
+    "mocha": "^3.0.2",
+    "pre-commit": "^1.1.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xgbuils/schrodinger.git"
+  },
+  "keywords": [
+    "random",
+    "value",
+    "indeterminism"
+  ],
+  "author": "Xavier Garcia Buils <xgbuils@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xgbuils/schrodinger/issues"
+  },
+  "homepage": "https://github.com/xgbuils/schrodinger#readme",
+  "pre-commit": [
+    "lint",
+    "test"
+  ]
+}
