@@ -115,4 +115,62 @@ describe('schrodinger', function () {
             })
         })
     })
+
+    describe('calling get twice or more', function () {
+        describe('with strict mode', function () {
+            describe('when it is passed the same seed', function () {
+                it('returns the same value', function () {
+                    var array = [23, 'foo', {}]
+                    var seed = 16
+                    var schrodinger = new Schrodinger(array, true)
+                    var firstValue = schrodinger.get(seed)
+                    var secondValue = schrodinger.get(seed)
+                    expect(firstValue).to.be.equal(secondValue)
+                })
+            })
+
+            describe('when it is passed distinct seed', function () {
+                it('throws an error', function () {
+                    var array = [23, 'foo', {}]
+                    var seed1 = 16
+                    var seed2 = 30
+                    function test () {
+                        var schrodinger = new Schrodinger(array, true)
+                        schrodinger.get(seed1)
+                        schrodinger.get(seed2)
+                    }
+
+                    expect(test).to.throw('It is not possible to call get method with seed `' +
+                        seed2 + '` if it is previously called with another seed (`' + seed1 + '`).')
+                })
+            })
+        })
+
+        describe('without strict mode', function () {
+            describe('when it is passed the same seed', function () {
+                it('returns the same value', function () {
+                    var array = [23, 'foo', {}]
+                    var seed = 16
+                    var schrodinger = new Schrodinger(array, false)
+                    var firstValue = schrodinger.get(seed)
+                    var secondValue = schrodinger.get(seed)
+                    expect(firstValue).to.be.equal(secondValue)
+                })
+            })
+
+            describe('when it is passed distinct seed', function () {
+                it('omits this seed and returns the same value', function () {
+                    var array = [23, 'foo', {}]
+                    var seed1 = 16
+                    var seed2 = 17
+
+                    var schrodinger = new Schrodinger(array, false)
+                    var firstValue = schrodinger.get(seed1)
+                    var secondValue = schrodinger.get(seed2)
+
+                    expect(secondValue).to.be.equal(firstValue)
+                })
+            })
+        })
+    })
 })

@@ -9,6 +9,13 @@ function Schrodinger (list, strict) {
 
 Schrodinger.prototype.get = function (seed) {
     var list = this.list
+    if (!this.hasOwnProperty('seed')) {
+        this.seed = seed
+    } else if (this.strict && this.seed !== seed) {
+        throw new Error('It is not possible to call get method with seed `' +
+            seed + '` if it is previously called with another seed (`' + this.seed + '`).')
+    }
+
     if (!this.hasOwnProperty('value')) {
         this.value = typeof list === 'function' ? list(seed) : list[seed % list.length]
     }
