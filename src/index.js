@@ -1,6 +1,8 @@
 function Schrodinger (list, strict) {
-    if (!(typeof list === 'function') && !Array.isArray(list)) {
-        throw new Error('`' + list + '` must be a function or a list')
+    var isArray = Array.isArray(list)
+    var reportedParam = isArray ? '[]' : list
+    if (!(typeof list === 'function') && (!isArray || list.length === 0)) {
+        throw new Error('`' + reportedParam + '` must be a function or a non-empty array')
     }
 
     this.strict = !!strict
