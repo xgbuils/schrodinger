@@ -26,10 +26,16 @@ Schrodinger.prototype.get = function (seed) {
 
 Schrodinger.prototype.set = function (value) {
     var list = this.list
+    var strict = this.strict
     if (this.hasOwnProperty('value')) {
-        throw new Error('It is not possible to set the value `' +
-            value + '` after calling get method.')
-    } else if (this.strict && Array.isArray(list) && list.indexOf(value) === -1) {
+        if (strict) {
+            throw new Error('It is not possible to set the value `' +
+                value + '` after value is previously determined by get or set method.')
+        } else if (value !== this.value) {
+            throw new Error('It is invalid to set different value `' + value + '`. Value `' +
+                this.value + '` is previously determined by get or set method.')
+        }
+    } else if (strict && Array.isArray(list) && list.indexOf(value) === -1) {
         throw new Error('`' + value + '` is invalid value to set. Valid values: [' +
             list.join(', ') + '].')
     }

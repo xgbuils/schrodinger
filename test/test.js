@@ -44,7 +44,7 @@ describe('schrodinger', function () {
 
     describe('calling get at first time', function () {
         describe('after array constructor parameter', function () {
-            it('if is passed a seed, it returns element in seed % array.length position', function () {
+            it('if a seed is passed, it returns element in seed % array.length position', function () {
                 var array = [23, 'foo', {}]
                 var seed = 16
                 var schrodinger = new Schrodinger(array)
@@ -53,7 +53,7 @@ describe('schrodinger', function () {
         })
 
         describe('after function constructor parameter', function () {
-            it('if is passed a seed, it returns the same value that returns the function parameter', function () {
+            it('if a seed is passed, it returns the same value that returns the function parameter', function () {
                 var fn = function (seed) {
                     return seed * seed + 24
                 }
@@ -79,24 +79,58 @@ describe('schrodinger', function () {
         })
 
         describe('after calling get', function () {
-            it('throws an exception', function () {
-                var fn = function (seed) {
-                    return seed * seed + 24
-                }
-                var seed = 24
-                var value = 'lorem ipsum'
-                function test () {
-                    var schrodinger = new Schrodinger(fn)
-                    schrodinger.get(seed)
-                    schrodinger.set(value)
-                }
-                expect(test).to.throw('It is not possible to set the value `' +
-                    value + '` after calling get method.')
+            describe('with strict mode', function () {
+                it('throws an exception', function () {
+                    var fn = function (seed) {
+                        return seed * seed + 24
+                    }
+                    var seed = 24
+                    var value = 'lorem ipsum'
+                    function test () {
+                        var schrodinger = new Schrodinger(fn, true)
+                        schrodinger.get(seed)
+                        schrodinger.set(value)
+                    }
+                    expect(test).to.throw('It is not possible to set the value `' +
+                        value + '` after value is previously determined by get or set method.')
+                })
+            })
+
+            describe('without strict mode', function () {
+                it('if the value determined by get is set, it does not throws an exception', function () {
+                    var fn = function (seed) {
+                        return seed * seed + 24
+                    }
+                    var seed = 1
+
+                    var schrodinger = new Schrodinger(fn, false)
+                    function test () {
+                        var value = schrodinger.get(seed)
+                        schrodinger.set(value)
+                    }
+                    expect(test).to.not.throw()
+                })
+
+                it('if different value is set, it throws an exception', function () {
+                    var fn = function (seed) {
+                        return seed * seed + 24
+                    }
+                    var seed = 1
+
+                    var schrodinger = new Schrodinger(fn, false)
+                    var value1 = schrodinger.get(seed)
+                    var value2 = value1 + 2
+                    function test () {
+                        schrodinger.set(value2)
+                    }
+                    expect(test).to.throw('It is invalid to set different value `' + value2 + '`. Value `' +
+                        value1 + '` is previously determined by get or set method.')
+                })
             })
         })
 
         describe('when constructor uses strict mode with array parameter', function () {
-            it('throws an exception if it is set value that is not in array', function () {
+            it('throws an exception if value that is not in array is set ', function () {
                 var array = [23, 'foo', {}]
                 var value = 39
                 function test () {
@@ -126,7 +160,7 @@ describe('schrodinger', function () {
 
     describe('calling get twice or more', function () {
         describe('with strict mode', function () {
-            describe('when it is passed the same seed', function () {
+            describe('when the same seed is passed', function () {
                 it('returns the same value', function () {
                     var array = [23, 'foo', {}]
                     var seed = 16
@@ -137,7 +171,7 @@ describe('schrodinger', function () {
                 })
             })
 
-            describe('when it is passed distinct seed', function () {
+            describe('when different seed is passed', function () {
                 it('throws an error', function () {
                     var array = [23, 'foo', {}]
                     var seed1 = 16
@@ -155,7 +189,7 @@ describe('schrodinger', function () {
         })
 
         describe('without strict mode', function () {
-            describe('when it is passed the same seed', function () {
+            describe('when the same seed is passed', function () {
                 it('returns the same value', function () {
                     var array = [23, 'foo', {}]
                     var seed = 16
@@ -166,7 +200,7 @@ describe('schrodinger', function () {
                 })
             })
 
-            describe('when it is passed distinct seed', function () {
+            describe('when different seed is passed', function () {
                 it('omits this seed and returns the same value', function () {
                     var array = [23, 'foo', {}]
                     var seed1 = 16
@@ -178,6 +212,56 @@ describe('schrodinger', function () {
 
                     expect(secondValue).to.be.equal(firstValue)
                 })
+            })
+        })
+    })
+
+    describe('calling set twice or more', function () {
+        describe('with strict mode', function () {
+            it('throws an exception', function () {
+                var fn = function (seed) {
+                    return seed * seed % 10
+                }
+                var value = 'foo'
+
+                var schrodinger = new Schrodinger(fn, true)
+                function test () {
+                    schrodinger.set(value)
+                    schrodinger.set(value)
+                }
+                expect(test).to.throws('It is not possible to set the value `' +
+                    value + '` after value is previously determined by get or set method.')
+            })
+        })
+
+        describe('without strict mode', function () {
+            it('if the same value is set, it does not throws an exception', function () {
+                var fn = function (seed) {
+                    return seed * seed + 24
+                }
+                var seed = 1
+                var value = /^a+b$/
+
+                var schrodinger = new Schrodinger(fn, false)
+                schrodinger.set(value)
+                schrodinger.set(value)
+                expect(schrodinger.get(seed)).to.be.equal(value)
+            })
+
+            it('if different value is set, it throws an exception', function () {
+                var fn = function (seed) {
+                    return seed * seed + 24
+                }
+                var value1 = /^a+b$/
+                var value2 = {}
+
+                var schrodinger = new Schrodinger(fn, false)
+                function test () {
+                    schrodinger.set(value1)
+                    schrodinger.set(value2)
+                }
+                expect(test).to.throw('It is invalid to set different value `' + value2 + '`. Value `' +
+                    value1 + '` is previously determined by get or set method.')
             })
         })
     })
