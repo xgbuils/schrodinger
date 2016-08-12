@@ -22,7 +22,7 @@ describe('schrodinger', function () {
                 var param = []
                 new Schrodinger(param)
             }
-            expect(test).to.throw('`[]` must be a function or a non-empty array')
+            expect(test).to.throw('Error: `[]` must not be an empty array')
         })
 
         it('throws an exception if first parameter is an string', function () {
@@ -91,8 +91,8 @@ describe('schrodinger', function () {
                         schrodinger.get(seed)
                         schrodinger.set(value)
                     }
-                    expect(test).to.throw('It is not possible to set the value `' +
-                        value + '` after value is previously determined by get or set method.')
+                    expect(test).to.throw('It is not possible to set `' +
+                        value + '` after having previously called get method.')
                 })
             })
 
@@ -229,8 +229,8 @@ describe('schrodinger', function () {
                     schrodinger.set(value)
                     schrodinger.set(value)
                 }
-                expect(test).to.throws('It is not possible to set the value `' +
-                    value + '` after value is previously determined by get or set method.')
+                expect(test).to.throws('It is not possible to set `' +
+                    value + '` after having previously called set method.')
             })
         })
 
