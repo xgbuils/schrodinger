@@ -48,12 +48,20 @@ inherits(SetDifferentValueError, SchrodingerError)
 inherits(GetWithDifferentSeedError, SchrodingerError)
 inherits(SetInvalidValueError, SchrodingerError)
 
-module.exports = {
+var errors = {
     InvalidEmptyListError: InvalidEmptyListError,
-    InvalidParamConstructorError: InvalidEmptyListError,
+    InvalidParamConstructorError: InvalidParamConstructorError,
     GetWithDifferentSeedError: GetWithDifferentSeedError,
     SetAfterGetError: SetAfterGetError,
     SetAfterSetError: SetAfterSetError,
     SetDifferentValueError: SetDifferentValueError,
     SetInvalidValueError: SetInvalidValueError
 }
+
+Object.keys(errors).forEach(function (errorName) {
+    errors[errorName].prototype.toString = function () {
+        return errorName + ': ' + this.message
+    }
+})
+
+module.exports = errors

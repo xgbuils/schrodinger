@@ -1,19 +1,23 @@
-var expect = require('chai').expect
-var Schrodinger = require('../src/index.js')
+'use strict'
+
+const expect = require('chai').expect
+const assert = require('assert')
+const Schrodinger = require('../src/index.js')
+const error = require('../src/error.js')
 
 describe('schrodinger', function () {
     describe('constructor', function () {
         it('accepts non-empty array as first parameter', function () {
-            var param = ['foo']
-            var instance = new Schrodinger(param)
+            const param = ['foo']
+            const instance = new Schrodinger(param)
             expect(instance).to.be.an.instanceOf(Schrodinger)
         })
 
         it('accepts function as first parameter', function () {
-            var param = function (seed) {
+            const param = function (seed) {
                 return seed % 5
             }
-            var instance = new Schrodinger(param)
+            const instance = new Schrodinger(param)
             expect(instance).to.be.an.instanceOf(Schrodinger)
         })
 
@@ -22,7 +26,11 @@ describe('schrodinger', function () {
                 var param = []
                 new Schrodinger(param)
             }
-            expect(test).to.throw('Error: `[]` must not be an empty array')
+            expectToThrowError(test, function (err) {
+                expect(err).to.be.instanceof(error.InvalidEmptyListError)
+                expect(err.toString())
+                    .to.be.equal('InvalidEmptyListError: `[]` must not be an empty array')
+            })
         })
 
         it('throws an exception if first parameter is an string', function () {
@@ -31,6 +39,11 @@ describe('schrodinger', function () {
                 new Schrodinger(param)
             }
             expect(test).to.throw('`foo` must be a function or a non-empty array')
+            expectToThrowError(test, function (err) {
+                expect(err).to.be.instanceof(error.InvalidParamConstructorError)
+                expect(err.toString())
+                    .to.be.equal('InvalidParamConstructorError: `foo` must be a function or a non-empty array')
+            })
         })
 
         it('throws an exception if first parameter is a number', function () {
@@ -38,7 +51,11 @@ describe('schrodinger', function () {
                 var param = 100
                 new Schrodinger(param)
             }
-            expect(test).to.throw('`100` must be a function or a non-empty array')
+            expectToThrowError(test, function (err) {
+                expect(err).to.be.instanceof(error.InvalidParamConstructorError)
+                expect(err.toString())
+                    .to.be.equal('InvalidParamConstructorError: `100` must be a function or a non-empty array')
+            })
         })
     })
 
@@ -91,8 +108,12 @@ describe('schrodinger', function () {
                         schrodinger.get(seed)
                         schrodinger.set(value)
                     }
-                    expect(test).to.throw('It is not possible to set `' +
-                        value + '` after having previously called get method.')
+                    expectToThrowError(test, function (err) {
+                        expect(err).to.be.instanceof(error.SetAfterGetError)
+                        expect(err.toString())
+                            .to.be.equal('SetAfterGetError: It is not possible to set `' +
+                                value + '` after having previously called get method.')
+                    })
                 })
             })
 
@@ -123,8 +144,12 @@ describe('schrodinger', function () {
                     function test () {
                         schrodinger.set(value2)
                     }
-                    expect(test).to.throw('It is invalid to set different value `' + value2 + '`. Value `' +
-                        value1 + '` is previously determined by get or set method.')
+                    expectToThrowError(test, function (err) {
+                        expect(err).to.be.instanceof(error.SetDifferentValueError)
+                        expect(err.toString())
+                            .to.be.equal('SetDifferentValueError: It is invalid to set different value `' + value2 +
+                                '`. Value `' + value1 + '` is previously determined by get or set method.')
+                    })
                 })
             })
         })
@@ -139,6 +164,12 @@ describe('schrodinger', function () {
                 }
                 expect(test).to.throw('`' + value + '` is invalid value to set. Valid values: [' +
                     array.join(', ') + '].')
+                expectToThrowError(test, function (err) {
+                    expect(err).to.be.instanceof(error.SetInvalidValueError)
+                    expect(err.toString())
+                        .to.be.equal('SetInvalidValueError: `' + value + '` is invalid value to set. ' +
+                            'Valid values: [' + array.join(', ') + '].')
+                })
             })
         })
 
@@ -181,9 +212,12 @@ describe('schrodinger', function () {
                         schrodinger.get(seed1)
                         schrodinger.get(seed2)
                     }
-
-                    expect(test).to.throw('It is not possible to call get method with seed `' +
-                        seed2 + '` if it is previously called with another seed (`' + seed1 + '`).')
+                    expectToThrowError(test, function (err) {
+                        expect(err).to.be.instanceof(error.GetWithDifferentSeedError)
+                        expect(err.toString())
+                            .to.be.equal('GetWithDifferentSeedError: It is not possible to call get method with seed `' +
+                                seed2 + '` if it is previously called with another seed (`' + seed1 + '`).')
+                    })
                 })
             })
         })
@@ -229,8 +263,12 @@ describe('schrodinger', function () {
                     schrodinger.set(value)
                     schrodinger.set(value)
                 }
-                expect(test).to.throws('It is not possible to set `' +
-                    value + '` after having previously called set method.')
+                expectToThrowError(test, function (err) {
+                    expect(err).to.be.instanceof(error.SetAfterSetError)
+                    expect(err.toString())
+                        .to.be.equal('SetAfterSetError: It is not possible to set `' +
+                            value + '` after having previously called set method.')
+                })
             })
         })
 
@@ -260,9 +298,24 @@ describe('schrodinger', function () {
                     schrodinger.set(value1)
                     schrodinger.set(value2)
                 }
-                expect(test).to.throw('It is invalid to set different value `' + value2 + '`. Value `' +
-                    value1 + '` is previously determined by get or set method.')
+                expectToThrowError(test, function (err) {
+                    expect(err).to.be.instanceof(error.SetDifferentValueError)
+                    expect(err.toString())
+                        .to.be.equal('SetDifferentValueError: It is invalid to set different value `' + value2 +
+                            '`. Value `' + value1 + '` is previously determined by get or set method.')
+                })
             })
         })
     })
 })
+
+function expectToThrowError (test, cb) {
+    let ok = true
+    try {
+        test()
+        ok = false
+    } catch (err) {
+        cb(err)
+    }
+    assert.ok(ok, 'function does not throw exception')
+}
