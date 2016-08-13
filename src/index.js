@@ -9,9 +9,7 @@ function Schrodinger (list, strict) {
     if (strict && typeof strict === 'object') {
         config = strict
     } else {
-        config = strict ? strictConfig : {
-            SetDifferentValueError: true
-        }
+        config = strict || strict === undefined ? strictConfig : {}
     }
     Object.defineProperty(this, 'config', {
         value: Object.freeze(config)

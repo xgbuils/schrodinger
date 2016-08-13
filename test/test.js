@@ -61,6 +61,12 @@ describe('schrodinger', function () {
         })
 
         describe('config parameter (second parameter)', function () {
+            it('if parameter is not passed, it is true by default', function () {
+                const a = new Schrodinger(['foo'])
+                const b = new Schrodinger(['foo'], true)
+                expect(a.config).to.be.deep.equal(b.config)
+            })
+
             it('if parameter is an object, property config has the same object', function () {
                 const config = {
                     SetAfterGetError: true,
@@ -81,11 +87,9 @@ describe('schrodinger', function () {
                 })
             })
 
-            it('otherwise if parameter is false, has the correct config', function () {
+            it('otherwise if parameter is falsy, has the correct config', function () {
                 const schrodinger = new Schrodinger(['foo'], false)
-                expect(schrodinger.config).to.be.deep.equal({
-                    SetDifferentValueError: true
-                })
+                expect(schrodinger.config).to.be.deep.equal({})
             })
         })
 
@@ -159,7 +163,7 @@ describe('schrodinger', function () {
             it('get returns the value set', function () {
                 const array = [23, 'foo', {}]
                 const seed = 236874
-                const value = 39
+                const value = 'foo'
 
                 const schrodinger = new Schrodinger(array)
                 schrodinger.set(value)
