@@ -49,6 +49,7 @@ inherits(GetWithDifferentSeedError, SchrodingerError)
 inherits(SetInvalidValueError, SchrodingerError)
 
 var errors = {
+    SchrodingerError: SchrodingerError,
     InvalidEmptyListError: InvalidEmptyListError,
     InvalidParamConstructorError: InvalidParamConstructorError,
     GetWithDifferentSeedError: GetWithDifferentSeedError,

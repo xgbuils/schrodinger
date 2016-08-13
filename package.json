@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "A Schrödinger box with a cat inside.",
   "scripts": {
-    "test": "mocha test/test.js",
+    "test": "mocha test/*.js",
     "lint": "eslint **/*.js"
   },
   "main": "src/index.js",
