@@ -4,15 +4,21 @@ const error = require('./error.js')
 
 function Schrodinger (list, strict) {
     constructorErrorHandler.call(this, list)
+    let config
 
     if (strict && typeof strict === 'object') {
-        this.config = strict
+        config = strict
     } else {
-        this.config = strict ? strictConfig : {
+        config = strict ? strictConfig : {
             SetDifferentValueError: true
         }
     }
-    this.list = list
+    Object.defineProperty(this, 'config', {
+        value: Object.freeze(config)
+    })
+    Object.defineProperty(this, 'list', {
+        value: list
+    })
 }
 
 Schrodinger.prototype.get = function (seed) {
@@ -20,8 +26,14 @@ Schrodinger.prototype.get = function (seed) {
 
     const list = this.list
     if (!this.hasOwnProperty('value')) {
-        this.seed = seed
-        this.value = typeof list === 'function' ? list(seed) : list[seed % list.length]
+        Object.defineProperties(this, {
+            seed: {
+                value: seed
+            },
+            value: {
+                value: typeof list === 'function' ? list(seed) : list[seed % list.length]
+            }
+        })
     }
     return this.value
 }
@@ -30,7 +42,9 @@ Schrodinger.prototype.set = function (value) {
     setErrorHandler.call(this, value)
 
     if (!this.hasOwnProperty('value')) {
-        this.value = value
+        Object.defineProperty(this, 'value', {
+            value: value
+        })
     }
 }
 

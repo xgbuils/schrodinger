@@ -7,54 +7,127 @@ const error = require('../src/error.js')
 
 describe('schrodinger', function () {
     describe('constructor', function () {
-        it('accepts non-empty array as first parameter', function () {
-            const param = ['foo']
-            const instance = new Schrodinger(param)
-            expect(instance).to.be.an.instanceOf(Schrodinger)
-        })
+        describe('first parameter', function () {
+            it('accepts non-empty array as first parameter', function () {
+                const param = ['foo']
+                const instance = new Schrodinger(param)
+                expect(instance).to.be.an.instanceOf(Schrodinger)
+            })
 
-        it('accepts function as first parameter', function () {
-            const param = function (seed) {
-                return seed % 5
-            }
-            const instance = new Schrodinger(param)
-            expect(instance).to.be.an.instanceOf(Schrodinger)
-        })
+            it('accepts function as first parameter', function () {
+                const param = function (seed) {
+                    return seed % 5
+                }
+                const instance = new Schrodinger(param)
+                expect(instance).to.be.an.instanceOf(Schrodinger)
+            })
 
-        it('throws an error if first parameter is an empty array', function () {
-            function test () {
-                const param = []
-                new Schrodinger(param)
-            }
-            expectToThrowError(test, function (err) {
-                expect(err).to.be.instanceof(error.InvalidEmptyListError)
-                expect(err.toString())
-                    .to.be.equal('InvalidEmptyListError: `[]` must not be an empty array')
+            it('throws an error if first parameter is an empty array', function () {
+                function test () {
+                    const param = []
+                    new Schrodinger(param)
+                }
+                expectToThrowError(test, function (err) {
+                    expect(err).to.be.instanceof(error.InvalidEmptyListError)
+                    expect(err.toString())
+                        .to.be.equal('InvalidEmptyListError: `[]` must not be an empty array')
+                })
+            })
+
+            it('throws an error if first parameter is an string', function () {
+                function test () {
+                    const param = 'foo'
+                    new Schrodinger(param)
+                }
+                expect(test).to.throw('`foo` must be a function or a non-empty array')
+                expectToThrowError(test, function (err) {
+                    expect(err).to.be.instanceof(error.InvalidParamConstructorError)
+                    expect(err.toString())
+                        .to.be.equal('InvalidParamConstructorError: `foo` must be a function or a non-empty array')
+                })
+            })
+
+            it('throws an error if first parameter is a number', function () {
+                function test () {
+                    const param = 100
+                    new Schrodinger(param)
+                }
+                expectToThrowError(test, function (err) {
+                    expect(err).to.be.instanceof(error.InvalidParamConstructorError)
+                    expect(err.toString())
+                        .to.be.equal('InvalidParamConstructorError: `100` must be a function or a non-empty array')
+                })
             })
         })
 
-        it('throws an error if first parameter is an string', function () {
-            function test () {
-                const param = 'foo'
-                new Schrodinger(param)
-            }
-            expect(test).to.throw('`foo` must be a function or a non-empty array')
-            expectToThrowError(test, function (err) {
-                expect(err).to.be.instanceof(error.InvalidParamConstructorError)
-                expect(err.toString())
-                    .to.be.equal('InvalidParamConstructorError: `foo` must be a function or a non-empty array')
+        describe('config parameter (second parameter)', function () {
+            it('if parameter is an object, property config has the same object', function () {
+                const config = {
+                    SetAfterGetError: true,
+                    SetAfterSetError: true
+                }
+                const schrodinger = new Schrodinger(['foo'], config)
+                expect(schrodinger.config).to.be.deep.equal(config)
+            })
+
+            it('otherwise if parameter is truthy, then property .config is the most restrictive', function () {
+                const schrodinger = new Schrodinger(['foo'], true)
+                expect(schrodinger.config).to.be.deep.equal({
+                    GetWithDifferentSeedError: true,
+                    SetAfterGetError: true,
+                    SetAfterSetError: true,
+                    SetDifferentValueError: true,
+                    SetInvalidValueError: true
+                })
+            })
+
+            it('otherwise if parameter is false, has the correct config', function () {
+                const schrodinger = new Schrodinger(['foo'], false)
+                expect(schrodinger.config).to.be.deep.equal({
+                    SetDifferentValueError: true
+                })
             })
         })
 
-        it('throws an error if first parameter is a number', function () {
-            function test () {
-                const param = 100
-                new Schrodinger(param)
-            }
-            expectToThrowError(test, function (err) {
-                expect(err).to.be.instanceof(error.InvalidParamConstructorError)
-                expect(err.toString())
-                    .to.be.equal('InvalidParamConstructorError: `100` must be a function or a non-empty array')
+        describe('instance properties', function () {
+            describe('.list', function () {
+                it('is read-only property', function () {
+                    const schrodinger = new Schrodinger(['foo'])
+                    function test () {
+                        schrodinger.list = /^[a-c]$/
+                    }
+                    expect(test).to.throw('Cannot assign to read only property \'list\'')
+                })
+            })
+
+            describe('.config', function () {
+                it('is read-only property', function () {
+                    const schrodinger = new Schrodinger(['foo'])
+                    function test () {
+                        schrodinger.config = 80
+                    }
+                    expect(test).to.throw('Cannot assign to read only property \'config\'')
+                })
+
+                it('is not possible to add property', function () {
+                    const schrodinger = new Schrodinger(['foo'], {
+                        SetAfterGetError: true
+                    })
+                    function test () {
+                        schrodinger.config.foo = 80
+                    }
+                    expect(test).to.throw('Can\'t add property foo')
+                })
+
+                it('is not possible to update property', function () {
+                    const schrodinger = new Schrodinger(['foo'], {
+                        SetAfterGetError: true
+                    })
+                    function test () {
+                        schrodinger.config.SetAfterGetError = false
+                    }
+                    expect(test).to.throw('Cannot assign to read only property \'SetAfterGetError\'')
+                })
             })
         })
     })
