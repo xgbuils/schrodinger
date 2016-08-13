@@ -5,7 +5,13 @@ const error = require('./error.js')
 function Schrodinger (list, strict) {
     constructorErrorHandler.call(this, list)
 
-    this.strict = !!strict
+    if (strict && typeof strict === 'object') {
+        this.config = strict
+    } else {
+        this.config = strict ? strictConfig : {
+            SetDifferentValueError: true
+        }
+    }
     this.list = list
 }
 
@@ -23,8 +29,21 @@ Schrodinger.prototype.get = function (seed) {
 Schrodinger.prototype.set = function (value) {
     setErrorHandler.call(this, value)
 
-    this.value = value
+    if (!this.hasOwnProperty('value')) {
+        this.value = value
+    }
 }
+
+function errorHandler (check, createParams) {
+    let typeError = check()
+    if (typeError) {
+        throw new error[typeError](parse(messages[typeError], createParams()))
+    }
+}
+
+const GetWithDifferentSeedError = 'GetWithDifferentSeedError'
+const SetDifferentValueError = 'SetDifferentValueError'
+const SetInvalidValueError = 'SetInvalidValueError'
 
 function constructorErrorHandler (list) {
     const isArray = Array.isArray(list)
@@ -46,18 +65,11 @@ function constructorErrorHandler (list) {
     )
 }
 
-function errorHandler (check, createParams) {
-    let typeError = check()
-    if (typeError) {
-        throw new error[typeError](parse(messages[typeError], createParams()))
-    }
-}
-
 function getErrorHandler (seed) {
     errorHandler(
         () => {
-            if (this.strict && this.hasOwnProperty('seed') && this.seed !== seed) {
-                return 'GetWithDifferentSeedError'
+            if (this.config[GetWithDifferentSeedError] && this.hasOwnProperty('seed') && this.seed !== seed) {
+                return GetWithDifferentSeedError
             }
         },
         () => ({
@@ -70,18 +82,21 @@ function getErrorHandler (seed) {
 function setErrorHandler (value) {
     const list = this.list
     const isArray = Array.isArray(list)
-    const strict = this.strict
+    const config = this.config
     errorHandler(
         () => {
             let typeError
             if (this.hasOwnProperty('value')) {
-                if (strict) {
-                    typeError = this.hasOwnProperty('seed') ? 'SetAfterGetError' : 'SetAfterSetError'
-                } else if (value !== this.value) {
-                    typeError = 'SetDifferentValueError'
+                const SetAfterMethodError = this.hasOwnProperty('seed') ?
+                    'SetAfterGetError' :
+                    'SetAfterSetError'
+                if (config[SetAfterMethodError]) {
+                    typeError = SetAfterMethodError
+                } else if (value !== this.value && config[SetDifferentValueError]) {
+                    typeError = SetDifferentValueError
                 }
-            } else if (strict && isArray && list.indexOf(value) === -1) {
-                typeError = 'SetInvalidValueError'
+            } else if (config[SetInvalidValueError] && isArray && list.indexOf(value) === -1) {
+                typeError = SetInvalidValueError
             }
             return typeError
         },
@@ -92,6 +107,14 @@ function setErrorHandler (value) {
             list: isArray && list.join(', ')
         })
     )
+}
+
+const strictConfig = {
+    GetWithDifferentSeedError: true,
+    SetAfterGetError: true,
+    SetAfterSetError: true,
+    SetDifferentValueError: true,
+    SetInvalidValueError: true
 }
 
 const messages = {
