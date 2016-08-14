@@ -54,7 +54,7 @@ schrodinger.get(seed) // keeps returning 5
 
 ## API
 
-### constructor (values, errorConfig = true)
+### constructor (values, errorConfig = true) : throws SchrodingerError
 
 It builds an instance with undetermined value among `values` passed in first parameter.
 
@@ -80,6 +80,13 @@ It defines an object where each key with `true` value represents an error that i
     SetInvalidValueError: true
 }
 ```
+
+#### errors
+##### InvalidEmptyListError
+Constructor throws this error when first parameter is an empty array. It is not possible to build an Schrodinger instance with empty list of options to get.
+
+##### InvalidParamConstructorError
+Constructor throws this error when first parameter is not an array or a function.
 
 ### get (seed) : throws SchrodingerError
 
