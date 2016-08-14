@@ -1,5 +1,8 @@
 # schrodinger
 
+[![travis ci][1]][2]
+[![Coverage Status][3]][4]
+
 ## Introduction
 
 [Schrödinger's cat](https://en.wikipedia.org/wiki/Schr%C3%B6dinger%27s_cat) is a thought experiment devised by Austrian physicist Erwin Schrödinger in 1935. This experiment propose to introduce a cat inside a close box with a probabilistic radiactive device that going to cause the cat's death without knowing when does the cat die. Only if someone opens the box, then they be able to know if cat is dead or alive. This micro-library does not aim to clarify anything about this paradoxical quantum experiment.
@@ -169,3 +172,8 @@ See [tests](https://github.com/xgbuils/schrodinger/tree/master/test) for more do
 
 ## License
 MIT
+
+  [1]: https://travis-ci.org/xgbuils/schrodinger.svg?branch=master
+  [2]: https://travis-ci.org/xgbuils/schrodinger
+  [3]: https://codecov.io/gh/xgbuils/schrodinger/branch/master/graph/badge.svg
+  [4]: https://codecov.io/gh/xgbuils/schrodinger
