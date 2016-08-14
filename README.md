@@ -94,7 +94,7 @@ It determines the value that returns `get` if it is called the first time.
 If `errorConfig` parameter has property `GetWithDifferentSeedError` on `true` and `get` is called with different seed that `get` was called the first time, then it throws `GetWithDifferentSeedError` error.
 
 ### set (value) : throws SchrodingerError
-- Depending on `errorConfig` constructor parameter, if value is undetermined it sets `value` or throws an error
+- If value is undetermined it sets `value` or throws an error depending on `errorConfig`.
 - If value is determined, it does not modify it and throws error or not depending on `errorConfig`.
 
 #### parameters
@@ -107,14 +107,62 @@ It is the value that is attempeted to set.
 ##### SetAfterGetError
 If `errorConfig` parameter has property `SetAfterGetError` on `true` and `set` is called after having previously called `get` method, then it throws `SetAfterGetError` error.
 
+###### Example
+``` javascript
+var Schrodinger = require('schrodinger')
+var seed = 9
+var instance = new Schrodinger([2, 3, 5, 7, 11, 13], {
+    SetAfterGetError: true
+})
+
+instance.get(seed) // returns 7
+instance.set(7) // it throws a SetAfterGetError
+```
+
 ##### SetAfterSetError
 If `errorConfig` parameter has property `SetAfterSetError` on `true` and `set` is called after having previously called `set` method, then it throws `SetAfterSetError` error.
+
+###### Example
+``` javascript
+var Schrodinger = require('schrodinger')
+var seed = 9
+var instance = new Schrodinger([2, 3, 5, 7, 11, 13], {
+    SetAfterSetError: true
+})
+
+instance.set(5) // set 5
+instance.set(5) // it throws a SetAfterSetError
+```
 
 ##### SetDifferentValueError
 If `errorConfig` parameter has not properties `SetAfterGetError` and `SetAfterSetError` but has property `SetDifferentValueError` on `true` and `set` is called with different value than it was called the first time, then it throws `SetDifferentValueError` error.
 
+###### Example
+``` javascript
+var Schrodinger = require('schrodinger')
+var seed = 9
+var instance = new Schrodinger([2, 3, 5, 7, 11, 13], {
+    SetDifferentValueError: true
+})
+
+instance.set(5) // set 5
+instance.set(5) // it does not throws error because SetAfterSetError property is not true
+instance.set(7) // it throws a SetDifferentValueError
+```
+
 ##### SetInvalidValueError
 If `errorConfig` parameter has property `SetInvalidValueError` on `true`, it was passed an array of `values` on first parameter of constructor  and `set` is called with value not included in `values`, then it throws `SetInvalidValueError` error.
+
+###### Example
+``` javascript
+var Schrodinger = require('schrodinger')
+var seed = 9
+var instance = new Schrodinger([2, 3, 5, 7, 11, 13], {
+    SetInvalidValueError: true
+})
+
+instance.set(8) // throws a SetInvalidValueError because 8 is not in list of possible values.
+```
 
 ## WIP More Documentation
 See [tests](https://github.com/xgbuils/schrodinger/tree/master/test) for more documentation.
