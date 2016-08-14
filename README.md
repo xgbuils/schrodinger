@@ -96,6 +96,19 @@ It determines the value that returns `get` if it is called the first time.
 ##### GetWithDifferentSeedError
 If `errorConfig` parameter has property `GetWithDifferentSeedError` on `true` and `get` is called with different seed that `get` was called the first time, then it throws `GetWithDifferentSeedError` error.
 
+###### Example
+``` javascript
+var Schrodinger = require('schrodinger')
+var firstSeed = 9
+var secondSeed = 11
+var instance = new Schrodinger([2, 3, 5, 7, 11, 13], {
+    GetWithDifferentSeedError: true
+})
+
+instance.get(firstSeed) // returns 7
+instance.get(secondSeed) // throws GetWithDifferentSeedError
+```
+
 ### set (value) : throws SchrodingerError
 - If value is undetermined it sets `value` or throws an error depending on `errorConfig`.
 - If value is determined, it does not modify it and throws error or not depending on `errorConfig`.
