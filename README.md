@@ -3,53 +3,77 @@
 [![travis ci][1]][2]
 [![Coverage Status][3]][4]
 
+## Version
+1.0.0
+
 ## Introduction
 
 [Schrödinger's cat](https://en.wikipedia.org/wiki/Schr%C3%B6dinger%27s_cat) is a thought experiment devised by Austrian physicist Erwin Schrödinger in 1935. This experiment propose to introduce a cat inside a close box with a probabilistic radiactive device that going to cause the cat's death without knowing when does the cat die. Only if someone opens the box, then they be able to know if cat is dead or alive. This micro-library does not aim to clarify anything about this paradoxical quantum experiment.
 
 Conversely it provides a `Schrodinger` class that builds instances with undetermined value inside. This value is only determined if the user gets the value or force the value setting it. Once the user know the value, this value is unmodifiable. This library also provides a set of errors to prevent forcing the value if it has been already determined.
 
-Therefore, `Schrodinger` is a class with a `get` and `set` methods. But `get` is not commonly getter and requires a `seed` parameter to determine which of all possible values is returned. The possible values that can return `get` method are passed through an array or a function on first parameter of constructor.
+Therefore, `Schrodinger` is a class with a `get` and `set` methods. But `get` is not commonly getter and requires a `seed` parameter to determine which of all possible values is returned.
 
-## Version
-1.0.0
-
-## Examples
-
-#### get first:
+### Instancing Schrodinger class
+Firstly, when it is instanced an Schrodinger class, the value that contains is undetermined. Nevertheless, constructor of class requires a set of values to determine the value subsequently. This set of values can be passed using an array or a function with seed parameter:
 ``` javascript
 var Schrodinger = require('schrodinger')
-var seed = 13126
 
-var schrodinger = new Schrodinger([10, 501, 2020], true)
-schrodinger.get(seed) // resolves to 501 and returns 501
-schrodinger.get(seed) // returns 501
-schrodinger.get(seed) // returns 501
+// passing an array:
+var a = new Schrodinger([5, /\d+/, 'bar']) // it potentially determines to 5, /\d+/ or 'bar'
 
-schrodinger.set(10) /* throws an error because `true` in second parameter of constructor, 
-it forces to report an error if it is attempted to set value after this value is already 
-determined. */
-
-schrodinger.get(seed) // keeps returning 501
+// passing a function:
+var b = new Schrodinger(function (seed) {
+    return seed * seed % 7
+}) // it potentially determines to any value that function returns.
 ```
 
-#### set first:
+### Value determination
+#### Determination by set method
+The simplest way to determine value of Schrodinger instance is setting it using `set`method:
+
+```
+var instance = new Schrodinger([1, 3, 6, 10]) // undetermined value
+instance.set(6) // from now, if it is gotten the value, it always return 6
+```
+
+Notice: set method might throw an exception [in certain circumstances](https://github.com/xgbuils/schrodinger#setinvalidvalueerror).
+
+#### Determination by get method
+If value determination is not forced by any `set` method. The first call of `get` method determine the value using a `seed`. If set of possibles values was determined using an array, the value is detetermined getting the value in `seed % values.length` position. For example:
+
 ``` javascript
-var Schrodinger = require('schrodinger')
-var seed = 13126
+var a = new Schrodinger(['apple', 'orange', 'banana'])
+a.get(5) // 5 % 3 === 2 --> returns 'banana'
 
-var schrodinger = new Schrodinger(function (seed) {
-    return seed * seed % 11
-}, false)
+var b = new Schrodinger(['apple', 'orange', 'banana'])
+b.get(12) // 12 % 3 === 0 --> returns 'apple'
+```
 
-schrodinger.set(5) // now value is determined to 5
-schrodinger.get(seed) // returns 5 (ignoring seed)
-schrodinger.get(seed) // returns 5 (ignoring seed)
+If set of values is determined by a function, `get` method determines the value calling this function:
 
-schrodinger.set(7) // do nothing, value is already set.
-/* it does not throw error because `false` second parameter in constructor silences all errors. */
+``` javascript
+var a = new Schrodinger(function (seed) {
+    return (seed * seed) % 7
+})
+a.get(5) // (5 * 5) % 7 === 4 --> returns 4
+```
 
-schrodinger.get(seed) // keeps returning 5
+### Unmodifiable value after determination and throwing errors
+Once value is determined, `get` method will return this value forever, and `set` method will not overwrite this value. Depending on second parameter of constructor, `get` and `set` might throw errors if it is attempted to set a value that is already determined or get the value with another seed. To know more about errors see [API documentation](https://github.com/xgbuils/schrodinger#api). 
+
+The following example shows how Shrodinger instance keeps the value unmodified and does not throw any error because the second parameter of constructor is `false`:
+
+``` javascript
+var instance = new Schrodinger([1, 2, 4, 8, 16], false)
+var seed1 = 12753
+var seed2 = 843832
+
+instance.set(4) // from now, value is determined to 4
+instance.get() // returns 4
+instance.get(seed1) // returns 4 (ignoring seed)
+instance.set(7) // do nothing
+instance.get(seed2) // returns 4 (ignoring seed)
 ```
 
 ## API
