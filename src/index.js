@@ -72,7 +72,7 @@ function constructorErrorHandler (list) {
             return typeError
         },
         () => ({
-            reportedParam: isArray ? '[]' : list
+            list: list
         })
     )
 }
@@ -130,8 +130,8 @@ const strictConfig = {
 }
 
 const messages = {
-    InvalidParamConstructorError: '`${reportedParam}` must be a function or a non-empty array',
-    InvalidEmptyListError: '`${reportedParam}` must not be an empty array',
+    InvalidParamConstructorError: '`${list}` must be a function or a non-empty array',
+    InvalidEmptyListError: '`[]` must not be an empty array',
     GetWithDifferentSeedError: 'It is not possible to call get method with seed `${seed}` if it is previously called with another seed (`${thisSeed}`).',
     SetAfterGetError: 'It is not possible to set `${value}` after having previously called get method.',
     SetAfterSetError: 'It is not possible to set `${value}` after having previously called set method.',
